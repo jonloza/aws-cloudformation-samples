@@ -1,0 +1,26 @@
+{
+    "typeName": "AWSSamples::CloudFrontLogging::Hook",
+    "description": "Validates that CloudFront distribution have access logging enabled.",
+    "sourceUrl": "https://github.com/aws-cloudformation/example-sse-hook",
+    "documentationUrl": "https://github.com/aws-cloudformation/example-sse-hook/blob/master/README.md",
+    "typeConfiguration": {
+        "properties": {},
+        "additionalProperties": false
+    },
+    "required": [],
+    "handlers": {
+        "preCreate": {
+            "targetNames": [
+                "AWS::CloudFront::Distribution"
+            ],
+            "permissions": []
+        },
+        "preUpdate": {
+            "targetNames": [
+                "AWS::CloudFront::Distribution"
+            ],
+            "permissions": []
+        }
+    },
+    "additionalProperties": false
+}

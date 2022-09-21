@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: cloudfront-accesslogs-enabled
+
+Resources:
+  ########################
+  # Supporting Resources #
+  ########################
+  S3BucketLoggingSupporting:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  S3BucketOriginSupporting:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  #######################
+  # Compliant Resources #
+  #######################
+  CloudFrontDistributionLoggingCompliant:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Logging:
+          Bucket: !GetAtt
+            - S3BucketLoggingSupporting
+            - DomainName
+        Origins:
+          - DomainName: !GetAtt
+              - S3BucketOriginSupporting
+              - DomainName
+            Id: S3Origin
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: https-only
+          ForwardedValues:
+            QueryString: false
+
+  ##########################
+  # NonCompliant Resources #
+  ##########################
+  CloudFrontDistributionLoggingNonCompliant:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Origins:
+          - DomainName: !GetAtt
+              - S3BucketOriginSupporting
+              - DomainName
+            Id: S3Origin
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: https-only
+          ForwardedValues:
+            QueryString: false
